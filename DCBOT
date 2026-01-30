@@ -1,58 +1,37 @@
 import discord
+from discord.ext import commands
 import os
 import random
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 energy_facts = {
-    "tv": [
-        "Lowering TV brightness reduces electricity use.",
-        "Turning off standby mode saves energy.",
-        "LED TVs are more energy efficient than older models."
-    ],
-    "phone": [
-        "Unplugging chargers saves phantom energy.",
-        "Dark mode saves power on OLED screens.",
-        "Charging only when needed saves electricity."
-    ],
-    "light": [
-        "LED bulbs use up to 80% less energy.",
-        "Turning lights off when leaving saves power.",
-        "Smart bulbs reduce wasted electricity."
-    ],
-    "computer": [
-        "Laptops use less power than desktops.",
-        "Sleep mode saves energy when not in use.",
-        "Lower screen brightness saves electricity."
-    ],
-    "fridge": [
-        "Keeping the fridge full helps it run efficiently.",
-        "Older fridges use much more electricity.",
-        "Opening the fridge less often saves energy."
-    ]
+    "tv": ["Lowering TV brightness reduces electricity use.", "LED TVs are more energy efficient."],
+    "phone": ["Unplugging chargers saves phantom energy.", "Dark mode saves power on OLED screens."],
+    "light": ["LED bulbs use up to 80% less energy.", "Turning lights off saves power."],
+    "computer": ["Laptops use less power than desktops.", "Sleep mode saves energy."],
+    "fridge": ["Keeping the fridge full helps it run efficiently.", "Older fridges use more electricity."]
 }
 
-@client.event
+@bot.event
 async def on_ready():
-    print("Bot is online")
+    print(f"Logged in as {bot.user}")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
 
-    content = message.content.lower()
+@bot.command()
+async def energy(ctx, category: str = None):
 
-    for key in energy_facts:
-        if key in content:
-            fact = random.choice(energy_facts[key])
-            await message.channel.send(f"🔋 {fact}")
-            return
+    if category and category.lower() in energy_facts:
+        fact = random.choice(energy_facts[category.lower()])
+        await ctx.send(f"🔋 **Tip:** {fact}")
+    else:
+        options = ", ".join(energy_facts.keys())
+        await ctx.send(f"❓ Please provide a category! Options: {options}")
 
-    await message.channel.send("❌ I can’t help with that.")
 
-client.run(os.getenv("##################################################"))
-
+bot.run("###############################################")
